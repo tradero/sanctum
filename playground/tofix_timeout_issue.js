@@ -15,35 +15,24 @@ var vmm     = new Sanctum('vms-scripts',
     },
     onExit: function(err, data)
     {
-        console.log('E', data);
+        //console.log('E', data);
     },
     onTimeout: function(data)
     {
-        console.log('T', data);
+        //console.log('T', data);
     },
 
     workers      : 1,
-    timeout      : 4000
+    timeout      : 2000
 });
 
-var rows = [
-    { _id: 1 },
-    { _id: 2 },
-    { _id: 3 },
-    { _id: 4 }
-];
-
-var scripts = [
-    { id: 1, name: 'first script' , code: '$result.foo=$result.foo+1; setTimeout(function(){ exit($result); },2000);' },
-    { id: 2, name: 'second script', code: '$result.foo=$result.foo+1; setTimeout(function(){ exit($result); },2000);' }
-];
-
+var fixtures = require('../fixtures');
 var start = Date.now();
 
-vmm.async.each(rows, function(row, next)
+vmm.async.each(fixtures.rows, function(row, next)
 {
     vmm.flush();
-    vmm.script(scripts, row, function (err, res)
+    vmm.scriptSeries(fixtures.scripts, row, function (err, res)
     {
         console.log(process.pid, 'processed script', err, res);
         //console.log('row', res._.row._id, 'processed by script', res._.script.id, 'in', res._.time, 'ms');
@@ -52,7 +41,7 @@ vmm.async.each(rows, function(row, next)
     {
         if (err) return console.log(process.pid, 'ERROR', err);
 
-        console.log(process.pid, 'DONE SCRIPTS', a._, b);
+        //console.log(process.pid, 'DONE SCRIPTS', a._, b);
         next();
     });
 
@@ -65,13 +54,7 @@ setTimeout(function()
 {
     vmm.stop(function()
     {
-        console.log(process.pid + ' VMM stopped\n\n\n\n\n\n');
-        //console.log('starting again in 3s');
-        //setTimeout(function()
-        //{
-        //    vmm.start();
-
-        //}, 3000);
+        console.log(process.pid + ' VMM stopped');
     });
 
 }, 500);
